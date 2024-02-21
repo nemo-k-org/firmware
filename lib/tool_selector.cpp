@@ -1,0 +1,4 @@
+#ifdef NEMOK_SENSOR_TEST_HTTP
+#define NEED_WIFI
+#define NEED_HTTP_CLIENT
+#endif
