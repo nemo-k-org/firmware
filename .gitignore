@@ -33,3 +33,6 @@
 
 # PlatformIO
 .pio/
+
+# Local sensor-specific compilation scripts
+upload_sensor_*
