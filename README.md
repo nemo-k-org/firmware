@@ -63,7 +63,7 @@ Test progress:
    * `NEMOK_WIFI_SSID`
    * `NEMOK_WIFI_PASS`
 
-#### Temperature sensor DS18B20: `NEMO_SENSOR_TEMP_DS18B20`
+#### Temperature sensor DS18B20: `NEMOK_SENSOR_TEMP_DS18B20`
 
 This sensor uses DS18B20 sensor which sends temperature using
 OneWire protocol. The sensor measures -55°C - +125°C and the
@@ -74,8 +74,8 @@ for example to engine, engine room or salon temperatures.
    * `NEMOK_SENSOR_HOSTNAME`
    * `NEMOK_WIFI_SSID`
    * `NEMOK_WIFI_PASS`
-   * `NEMOK_SIGNALK_SERVER_ADDRESS`
 * Optional parameters:
+   * `NEMOK_SIGNALK_SERVER_HOST`
    * `NEMOK_SIGNALK_SERVER_PORT`
    * `NEMOK_SIGNALK_SERVER_TOKEN`
    * `NEMOK_SENSOR_DELAY`
@@ -90,8 +90,8 @@ measuring range suits e.g. for exhaust pipes.
    * `NEMOK_SENSOR_HOSTNAME`
    * `NEMOK_WIFI_SSID`
    * `NEMOK_WIFI_PASS`
-   * `NEMOK_SIGNALK_SERVER_ADDRESS`
 * Optional parameters:
+   * `NEMOK_SIGNALK_SERVER_HOST`
    * `NEMOK_SIGNALK_SERVER_PORT`
    * `NEMOK_SIGNALK_SERVER_TOKEN`
    * `NEMOK_SENSOR_DELAY`
