@@ -54,6 +54,8 @@ bool wifi_initialise() {
 
 #if NEMOK_SENSOR_TEST_HTTP > 0
 #include "../lib/sensor_test_http.cpp"
+#elif NEMOK_SENSOR_TEMP_DS18B20 > 0
+#include "../lib/sensor_temp_ds18b20.cpp"
 #elif NEMOK_SENSOR_TEMP_MAX6675 > 0
 #include "../lib/sensor_temp_max6675.cpp"
 #endif

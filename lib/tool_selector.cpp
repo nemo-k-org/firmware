@@ -1,6 +1,10 @@
 #if NEMOK_SENSOR_TEST_HTTP > 0
 #endif
 
+#if NEMOK_SENSOR_TEMP_DS18B20 > 0
+#define NEED_LIB_ESPSIGK
+#endif
+
 #if NEMOK_SENSOR_TEMP_MAX6675 > 0
 #define NEED_LIB_ESPSIGK
 #endif

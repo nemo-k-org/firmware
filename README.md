@@ -63,10 +63,27 @@ Test progress:
    * `NEMOK_WIFI_SSID`
    * `NEMOK_WIFI_PASS`
 
+#### Temperature sensor DS18B20: `NEMO_SENSOR_TEMP_DS18B20`
+
+This sensor uses DS18B20 sensor which sends temperature using
+OneWire protocol. The sensor measures -55°C - +125°C and the
+accuracy is ±0,5°C from -10°C - +85°C. The measuring range is suitable
+for example to engine, engine room or salon temperatures.
+
+* Required parameters:
+   * `NEMOK_SENSOR_HOSTNAME`
+   * `NEMOK_WIFI_SSID`
+   * `NEMOK_WIFI_PASS`
+   * `NEMOK_SIGNALK_SERVER_ADDRESS`
+* Optional parameters:
+   * `NEMOK_SIGNALK_SERVER_PORT`
+   * `NEMOK_SIGNALK_SERVER_TOKEN`
+   * `NEMOK_SENSOR_DELAY`
+
 #### Temperature sensor MAX6675: `NEMOK_SENSOR_TEMP_MAX6675`
 
 This sensor uses MAX6675 chip and type-K thermocouple to measure
-temperatures. MAX6675 has 12-bit 0,25°C resolution 0-1024°C. The
+temperatures. MAX6675 has 12-bit 0,25°C resolution 0 - 1024°C. The
 measuring range suits e.g. for exhaust pipes.
 
 * Required parameters:
