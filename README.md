@@ -6,7 +6,7 @@ sensors.
 
 This repository contains the Nemo-K firmware. Its basic charastertics are:
  * [PlatformIO](https://platformio.org/) build framework
- * [Wemos D1 mini (ESP8266)](https://www.wemos.cc/en/latest/d1/d1_mini.html) microcontroller (MCU)
+ * ESP-01S with at least 1 Mb RAM (ESP8266) microcontroller (MCU)
  * [EspSigK](https://github.com/mplattu/EspSigK) SignalK client library
  * The firmware flavour and parameters are set in compile time and hard-coded into firmware
 
@@ -14,8 +14,14 @@ This repository contains the Nemo-K firmware. Its basic charastertics are:
 
 ### Common environment variables
 
+* `NEMOK_SENSOR_HOSTNAME` - sensor hostname
+* `NEMOK_SENSOR_DELAY` - delay between sending sensor reading to server (milliseconds)
+* `NEMOK_SENSOR_KEY` - SignalK data key for sensor reading (e.g. `environment.outside.temperature`)
 * `NEMOK_WIFI_SSID` - the WiFi SSID of your yacht
 * `NEMOK_WIFI_PASS` - the passkey to aforementioned WiFi
+* `NEMOK_SIGNALK_SERVER_HOST` - IP or DNS address to your SignalK server
+* `NEMOK_SIGNALK_SERVER_PORT` - port number of your SignalK server
+* `NEMOK_SIGNALK_SERVER_TOKEN` - SignalK server token
 * One (and only one) of the `NEMOK_SENSOR_*` variables (see below)
 
 ### Status codes
@@ -53,4 +59,39 @@ Test progress:
     you should get status code 1. If no internet connection is not
     available, both codes 1 and 2 are acceptable results.
 
-Required parameters: `NEMOK_WIFI_SSID`, `NEMOK_WIFI_PASS`
+* Required parameters:
+   * `NEMOK_WIFI_SSID`
+   * `NEMOK_WIFI_PASS`
+
+#### Temperature sensor DS18B20: `NEMOK_SENSOR_TEMP_DS18B20`
+
+This sensor uses DS18B20 sensor which sends temperature using
+OneWire protocol. The sensor measures -55°C - +125°C and the
+accuracy is ±0,5°C from -10°C - +85°C. The measuring range is suitable
+for example to engine, engine room or salon temperatures.
+
+* Required parameters:
+   * `NEMOK_SENSOR_HOSTNAME`
+   * `NEMOK_WIFI_SSID`
+   * `NEMOK_WIFI_PASS`
+* Optional parameters:
+   * `NEMOK_SIGNALK_SERVER_HOST`
+   * `NEMOK_SIGNALK_SERVER_PORT`
+   * `NEMOK_SIGNALK_SERVER_TOKEN`
+   * `NEMOK_SENSOR_DELAY`
+
+#### Temperature sensor MAX6675: `NEMOK_SENSOR_TEMP_MAX6675`
+
+This sensor uses MAX6675 chip and type-K thermocouple to measure
+temperatures. MAX6675 has 12-bit 0,25°C resolution 0 - 1024°C. The
+measuring range suits e.g. for exhaust pipes.
+
+* Required parameters:
+   * `NEMOK_SENSOR_HOSTNAME`
+   * `NEMOK_WIFI_SSID`
+   * `NEMOK_WIFI_PASS`
+* Optional parameters:
+   * `NEMOK_SIGNALK_SERVER_HOST`
+   * `NEMOK_SIGNALK_SERVER_PORT`
+   * `NEMOK_SIGNALK_SERVER_TOKEN`
+   * `NEMOK_SENSOR_DELAY`

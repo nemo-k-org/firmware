@@ -1,16 +1,18 @@
+#include <Arduino.h>
 #include "../lib/tool_selector.cpp"
 
-#ifdef NEED_WIFI
 #include <ESP8266WiFi.h>
-#endif
-
-#ifdef NEED_HTTP_CLIENT
-#include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
-#endif
+WiFiClient wiFiClient;
+#include <ESP8266HTTPClient.h>
 
-#define STATUS_CODE_SENSOR_TEST_HTTP_PASSED 1
-#define STATUS_CODE_SENSOR_TEST_HTTP_FAILED 2
+// ESP01S blue led is connected to GPIO 1 (pin 2)
+#define LED_BUILTIN 1
+
+#ifdef NEED_LIB_ESPSIGK
+#include <EspSigK.h>
+EspSigK sigK(NEMOK_SENSOR_HOSTNAME, NEMOK_WIFI_SSID, NEMOK_WIFI_PASS, &wiFiClient);
+#endif
 
 #define BLINK_LENGTH_SHORT 100
 #define BLINK_LENGTH_LONG 1000
@@ -26,19 +28,6 @@ void blink_led(int length, int times) {
     }
 }
 
-void report_status(int status_code, bool report_forever = false) {
-    do {
-        Serial.print("Status code: ");
-        Serial.print(status_code);
-
-        blink_led(BLINK_LENGTH_LONG, 1);
-        blink_led(BLINK_LENGTH_SHORT, status_code);
-
-        Serial.println("\t(halted)");
-    } while (report_forever);
-}
-
-#ifdef NEED_WIFI
 bool wifi_initialise() {
     Serial.print("Connecting to WiFi...");
     Serial.print(NEMOK_WIFI_SSID);
@@ -62,36 +51,57 @@ bool wifi_initialise() {
 
     return true;
 }
+
+#if NEMOK_SENSOR_TEST_HTTP > 0
+#include "../lib/sensor_test_http.cpp"
+#elif NEMOK_SENSOR_TEMP_DS18B20 > 0
+#include "../lib/sensor_temp_ds18b20.cpp"
+#elif NEMOK_SENSOR_TEMP_MAX6675 > 0
+#include "../lib/sensor_temp_max6675.cpp"
 #endif
 
 void setup () {
-    Serial.begin(115200);
+    //Serial.begin(115200);
     pinMode(LED_BUILTIN, OUTPUT);
 
-    #ifdef NEED_WIFI
-    if (! wifi_initialise()) {
-        Serial.println("Could not initialise WiFi, restarting...");
-        ESP.restart();
+    #ifdef NEED_LIB_ESPSIGK
+    if (strcmp(NEMOK_SIGNALK_SERVER_HOST, "") != 0) {
+        sigK.setServerHost(NEMOK_SIGNALK_SERVER_HOST);
     }
+
+    #if NEMOK_SIGNALK_SERVER_PORT > 0
+    sigK.setServerPort(NEMOK_SIGNALK_SERVER_PORT);
     #endif
+
+    if (strcmp(NEMOK_SIGNALK_SERVER_TOKEN, "") != 0) {
+        sigK.setServerToken(NEMOK_SIGNALK_SERVER_TOKEN);
+    }
+
+    sigK.begin();
+
+    blink_led(BLINK_LENGTH_SHORT, 3);
+    #endif
+
+    sensorSetup();
 }
 
 void loop () {
-    #ifdef NEMOK_SENSOR_TEST_HTTP
-    WiFiClient client;
-    HTTPClient http;
+    sensorLoop();
 
-    http.begin(client, (const char *) "http://signalk.org");
-    int httpResponseCode = http.GET();
+    digitalWrite(LED_BUILTIN, HIGH);
+    #if NEMOK_SENSOR_DELAY > 0
+    sigK.safeDelay(NEMOK_SENSOR_DELAY / 2);
+    delay(BLINK_LENGTH_SHORT);
+    #endif
 
-    if (httpResponseCode == 200) {
-        report_status(STATUS_CODE_SENSOR_TEST_HTTP_PASSED, true);
-    }
-    else {
-        Serial.print("HTTP GET to http://signalk.org returned a response code: ");
-        Serial.print(httpResponseCode);
-        Serial.println(", trying again");
-        report_status(STATUS_CODE_SENSOR_TEST_HTTP_FAILED, true);
-    }
+    digitalWrite(LED_BUILTIN, LOW);
+    #if NEMOK_SENSOR_DELAY > 0
+    sigK.safeDelay(NEMOK_SENSOR_DELAY / 2);
+    #else
+    delay(BLINK_LENGTH_SHORT);
+    #endif
+
+    #ifdef NEED_LIB_ESPSIGK
+    sigK.handle();
     #endif
 }
