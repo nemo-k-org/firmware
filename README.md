@@ -6,7 +6,7 @@ sensors.
 
 This repository contains the Nemo-K firmware. Its basic charastertics are:
  * [PlatformIO](https://platformio.org/) build framework
- * [Wemos D1 mini (ESP8266)](https://www.wemos.cc/en/latest/d1/d1_mini.html) microcontroller (MCU)
+ * ESP-01S with at least 1 Mb RAM (ESP8266) microcontroller (MCU)
  * [EspSigK](https://github.com/mplattu/EspSigK) SignalK client library
  * The firmware flavour and parameters are set in compile time and hard-coded into firmware
 
