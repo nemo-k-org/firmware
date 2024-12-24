@@ -1,10 +1,10 @@
 .PHONY: build
 build:
-	pio run --environment esp01
+	./firmware-build.sh
 
 .PHONY: upload
 upload:
-	pio run --environment esp01 -t upload
+	./firmware-upload.sh
 
 .PHONY: monitor
 monitor:
