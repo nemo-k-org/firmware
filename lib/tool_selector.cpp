@@ -8,3 +8,7 @@
 #if NEMOK_SENSOR_TEMP_MAX6675 > 0
 #define NEED_LIB_ESPSIGK
 #endif
+
+#if NEMOK_SENSOR_GNSS_NEO6MV2 > 0
+#define NEED_LIB_ESPSIGK
+#endif
