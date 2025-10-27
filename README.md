@@ -95,3 +95,34 @@ measuring range suits e.g. for exhaust pipes.
    * `NEMOK_SIGNALK_SERVER_PORT`
    * `NEMOK_SIGNALK_SERVER_TOKEN`
    * `NEMOK_SENSOR_DELAY`
+
+#### Location/GNSS sensor NEO 6M v2: `NEMOK_SENSOR_GNSS_NEO6MV2`
+
+This sensor uses NEO 6M v2 breakout board to get geolocation
+from GNSS systems supported by the chip.
+
+* Required parameters:
+   * `NEMOK_SENSOR_HOSTNAME`
+   * `NEMOK_WIFI_SSID`
+   * `NEMOK_WIFI_PASS`
+* Optional parameters:
+   * `NEMOK_SIGNALK_SERVER_HOST`
+   * `NEMOK_SIGNALK_SERVER_PORT`
+   * `NEMOK_SIGNALK_SERVER_TOKEN`
+   * `NEMOK_SENSOR_DELAY`
+
+If `NEMOK_SENSOR_KEY` is set, the sensor will update keys for selected
+vessel. For example `NEMOK_SENSOR_KEY=flybridge` results e.g. following
+keys sent to the server:
+   * `vessels.flybridge.navigation.gnss.satellites`
+   * `vessels.flybridge.navigation.gnss.antennaAltitude`
+   * ...
+
+If `NEMOK_SENSOR_KEY` is not set, following keys are updated:
+   * `navigation.gnss.satellites`
+   * `navigation.gnss.antennaAltitude`
+   * `navigation.gnss.differentialAge`
+   * `navigation.position`
+   * `navigation.speedOverGround`
+   * `navigation.gnss.horizontalDilution`
+   * `navigation.headingTrue`
