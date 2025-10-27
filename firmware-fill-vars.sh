@@ -23,7 +23,7 @@ if [ -z $NEMOK_SENSOR_DELAY ]; then
 fi
 
 selected_count=0
-for required in $NEMOK_SENSOR_TEST_HTTP $NEMOK_SENSOR_TEMP_DS18B20 $NEMOK_SENSOR_TEMP_MAX6675 $NEMOK_SENSOR_GNSS_NEO6MV2; do
+for required in $NEMOK_SENSOR_TEST_HTTP $NEMOK_SENSOR_TEMP_DS18B20 $NEMOK_SENSOR_TEMP_MAX6675 $NEMOK_SENSOR_GNSS_NEO6MV2 $NEMOK_SENSOR_GNSS_NEO6MV2_UDP; do
     if [ $required -eq 1 ]; then
         selected_count=`expr $selected_count + 1`
     fi
