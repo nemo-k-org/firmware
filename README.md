@@ -126,3 +126,56 @@ If `NEMOK_SENSOR_KEY` is not set, following keys are updated:
    * `navigation.speedOverGround`
    * `navigation.gnss.horizontalDilution`
    * `navigation.headingTrue`
+
+#### Location/GNSS sensor NEO 6M v2: `NEMOK_SENSOR_GNSS_NEO6MV2_UDP`
+
+This sensor uses NEO 6M v2 breakout board to get geolocation
+from GNSS systems supported by the chip. Instead of sending location
+data directly to SignalK server like `NEMOK_SENSOR_GNSS_NEO6MV2`, it
+sends raw NMEA-0183 data from the GPS unit to the given host/port.
+
+This firmware can be used to send raw GPS data to SignalK server. In
+this scenario the SignalK server must be configured to read NMEA-0183
+data from UDP port:
+1. Server > Data Connections
+1. Add
+1. Example configuration:
+   * Data type: `NMEA 0183`
+   * Enabled: `Yes`
+   * Data logging: `No`
+   * ID: e.g. `NEO6` (this string will used as a data source, see e.g. Data Browser view)
+   * NMEA 0183 Source: `UDP`
+   * Port: e.g. `4123` (this should be an unused port in the server and the value should
+     equal with `NEMOK_SIGNALK_SERVER_PORT` parameter)
+   * Validate checksum: `Yes`
+   * Append checksum: `No`
+   * Remove NULL characters: `No`
+   * Ignore Sentences: leave empty
+   * Override timestamps: `No`
+1. Apply
+
+The firmware can also be used to send data to any other device which is able to
+process NMEA-0183 over UDP. Here is an example configuration for OpenCPN:
+1. Settings > Connections
+1. Add new connection
+1. Example configuration:
+   * `Network`
+   * Network protocol: `UDP`
+   * Data protocol: `NMEA 0183`
+   * Address: `0.0.0.0`
+   * DataPort: e.g. `4123` (this should be an unused port in the workstation and the value should
+     equal with `NEMOK_SIGNALK_SERVER_PORT` parameter)
+   * Description: e.g. `NEO6` (this is just to describe what this connection is for)
+   * Receive Input on this Port: `checked`
+   * Output on this port: `unchecked`
+1. OK > Ok
+
+In the setup above no SignalK server is required as the GPS sensor sends NMEA-0183 stream directly
+to OpenCPN.
+
+* Required parameters:
+   * `NEMOK_SENSOR_HOSTNAME`
+   * `NEMOK_WIFI_SSID`
+   * `NEMOK_WIFI_PASS`
+   * `NEMOK_SIGNALK_SERVER_HOST` (Destination of the UDP data, not necessary a SignalK server)
+   * `NEMOK_SIGNALK_SERVER_PORT` (Destination of the UDP data, not necessary a SignalK server)

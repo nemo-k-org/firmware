@@ -60,6 +60,8 @@ bool wifi_initialise() {
 #include "../lib/sensor_temp_max6675.cpp"
 #elif NEMOK_SENSOR_GNSS_NEO6MV2 > 0
 #include "../lib/sensor_gnss_neo6mv2.cpp"
+#elif NEMOK_SENSOR_GNSS_NEO6MV2_UDP > 0
+#include "../lib/sensor_gnss_neo6mv2_udp.cpp"
 #endif
 
 void setup () {
