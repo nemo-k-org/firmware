@@ -28,6 +28,22 @@ void blink_led(int length, int times) {
     }
 }
 
+void send_error_message(int error) {
+    Serial.print("Error: ");
+    Serial.println(error);
+
+    int led_short = BLINK_LENGTH_SHORT;
+    int led_long = BLINK_LENGTH_SHORT * 3;
+
+    blink_led(led_short, 3);
+    blink_led(led_long, 3);
+    blink_led(led_short, 3);
+
+    delay(BLINK_LENGTH_LONG);
+    blink_led(BLINK_LENGTH_LONG, error);
+    delay(BLINK_LENGTH_LONG);
+}
+
 bool wifi_initialise() {
     Serial.print("Connecting to WiFi...");
     Serial.print(NEMOK_WIFI_SSID);
@@ -62,11 +78,13 @@ bool wifi_initialise() {
 #include "../lib/sensor_gnss_neo6mv2.cpp"
 #elif NEMOK_SENSOR_GNSS_NEO6MV2_UDP > 0
 #include "../lib/sensor_gnss_neo6mv2_udp.cpp"
+#elif NEMOK_SENSOR_ADC_TANKLEVEL > 0
+#include "../lib/sensor_adc_tanklevel.cpp"
 #endif
 
 void setup () {
     //Serial.begin(115200);
-    pinMode(LED_BUILTIN, OUTPUT);
+    //pinMode(LED_BUILTIN, OUTPUT);
 
     #ifdef NEED_LIB_ESPSIGK
     if (strcmp(NEMOK_SIGNALK_SERVER_HOST, "") != 0) {

@@ -179,3 +179,66 @@ to OpenCPN.
    * `NEMOK_WIFI_PASS`
    * `NEMOK_SIGNALK_SERVER_HOST` (Destination of the UDP data, not necessary a SignalK server)
    * `NEMOK_SIGNALK_SERVER_PORT` (Destination of the UDP data, not necessary a SignalK server)
+
+#### Tank Level Sensor Using ADS1115 AD Converter `NEMOK_SENSOR_ADC_TANKLEVEL`
+
+This sensor reads resistance (0-300 ohm) from standard tank gauges. Any sensor
+sending readings in this scale can and must be calibrated, since the readings may
+easily be ±10 ohms.
+
+Here are two examples of gauges known to work:
+* Wema black water gauge signal is 240-30 ohm (0-100%, US standard)
+* Wema water/fuel gauge signal is 0-180 ohm (0-100%, European standard)
+
+* Required parameters:
+   * `NEMOK_SENSOR_HOSTNAME`
+   * `NEMOK_WIFI_SSID`
+   * `NEMOK_WIFI_PASS`
+   * `NEMOK_SENSOR_KEY` - SignalK data key for sensor reading (e.g. `tanks.freshWater.currentLevel`)
+   * `NEMOK_SENSOR_ADC_TANKLEVEL_0` - Resistance in ohms when the tank is empty (0%), see calibration
+   * `NEMOK_SENSOR_ADC_TANKLEVEL_100` - Resistance in ohms when the tank is full (100%), see calibration
+* Optional parameters:
+   * `NEMOK_SIGNALK_SERVER_HOST`
+   * `NEMOK_SIGNALK_SERVER_PORT`
+   * `NEMOK_SIGNALK_SERVER_TOKEN`
+   * `NEMOK_SENSOR_DELAY`
+
+**Important! Read this before connecting the gauge to the sensor!** In case your gauge is
+connected to the electrical ground (e.g. your tank is made of conductive material) identify
+whether either of the gauge wires is connected to the ground. Keep the gauge installed to
+the tank while making following measurements with a multimeter.
+1. Measure connectivity between either of the gauge wires and the electrical ground which you
+   are going to use to power the NemoK sensor.
+1. Measure potential difference (voltage) between either of the gauge wires and the electrical
+   ground which you are going to use to power the NemoK sensor.
+
+In the best possible (and most typical) scenario there is no connectivity and no potential
+difference. If this is your result, you can connect the gauge wires to the NemoK sensor either
+way.
+
+If you observe voltage between either of the wires and power ground, you have to find the cause
+before proceeding.
+
+In case of connectivity (a measurable resistance) between gauge wires and ground you should
+try to find which of the wires is directly connected to the ground. The manufacturer may have
+marked this wire as black.
+* The gauge ground wire should have zero ohms resistance regardless the position of the
+  gauge float when connected to the ground.
+* The resistance between the gauge signal wire and ground should alter when the position of the
+  gauge float is changed.
+
+If you have identified gauge ground wire make sure you connect this wire to SEND GND screw
+terminal.
+
+**Calibration**
+1. For best possible results take the gauge out from the tank so you can adjust the float
+   manually.
+1. Start by using resistance values given by the gauge manufacturer. If your gauge should give
+   240 ohms with level 0% and 30 ohms with level 100%, set `NEMOK_SENSOR_ADC_TANKLEVEL_0` to 240
+   and `NEMOK_SENSOR_ADC_TANKLEVEL_100` to 30.
+1. After measuring the sensor (see above) connect the gauge to the NemoK level sensor.
+1. Power up the NemoK sensor and observe in the SignalK server Data Browser view the values
+   the sensor sends. The path specified by `NEMOK_SENSOR_KEY` (e.g. `tanks.freshWater.currentLevel`)
+   should stay between 0.00 - 1.00. The real measured resistance can be read from a debug key
+   (in this example `tanks.freshWater.currentLevel.debug.resistance`). You can use this
+   value to set `NEMOK_SENSOR_ADC_TANKLEVEL_0` and `NEMOK_SENSOR_ADC_TANKLEVEL_100`.
