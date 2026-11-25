@@ -2,5 +2,5 @@
 
 . ./firmware-fill-vars.sh
 
-pio run --environment esp01 -t upload
+pio run --environment esp01 -v -t upload
 exit $?

@@ -13,7 +13,7 @@ void sensorSetup() {
 void sensorLoop() {
     float tempCelsius = max6675.readCelsius();
     float tempKelvin = tempCelsius + 273.15;
-    if (strcmp(NEMOK_SENSOR_KEY, "") != 0) {
-        sigK.sendDelta(NEMOK_SENSOR_KEY, tempKelvin);
+    if (preferencesKey.length() > 0) {
+        sigK.sendDelta(preferencesKey, tempKelvin);
     }
 }

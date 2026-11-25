@@ -16,8 +16,8 @@ void sensorLoop() {
     float tempCelsius = sensors.getTempCByIndex(0);
     if (tempCelsius != DEVICE_DISCONNECTED_C) {
         float tempKelvin = tempCelsius + 273.15;
-        if (strcmp(NEMOK_SENSOR_KEY, "") != 0) {
-            sigK.sendDelta(NEMOK_SENSOR_KEY, tempKelvin);
+        if (preferencesKey.length() > 0) {
+            sigK.sendDelta(preferencesKey, tempKelvin);
         }
     }
 }

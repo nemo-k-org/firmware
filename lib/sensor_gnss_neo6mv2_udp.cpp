@@ -28,7 +28,7 @@ void sensorLoop()
         if (c == '\n') {
             _neo6mv2udp_inputBuffer[_neo6mv2udp_inputBufferIndex] = '\n';
             _neo6mv2udp_inputBuffer[_neo6mv2udp_inputBufferIndex + 1] = '\0';
-            Udp.beginPacket(NEMOK_SIGNALK_SERVER_HOST, NEMOK_SIGNALK_SERVER_PORT);
+            Udp.beginPacket(preferencesSrvhost.c_str(), preferencesSrvport);
             Udp.write(_neo6mv2udp_inputBuffer);
             Udp.endPacket();
             _neo6mv2udp_inputBufferIndex = 0;

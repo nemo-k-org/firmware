@@ -60,8 +60,8 @@ Test progress:
     available, both codes 1 and 2 are acceptable results.
 
 * Required parameters:
-   * `NEMOK_WIFI_SSID`
-   * `NEMOK_WIFI_PASS`
+   * `NEMOK_WIFI_SSID` FIXME: ssid
+   * `NEMOK_WIFI_PASS` FIXME: pass
 
 #### Temperature sensor DS18B20: `NEMOK_SENSOR_TEMP_DS18B20`
 
@@ -71,7 +71,7 @@ accuracy is ±0,5°C from -10°C - +85°C. The measuring range is suitable
 for example to engine, engine room or salon temperatures.
 
 * Required parameters:
-   * `NEMOK_SENSOR_HOSTNAME`
+   * `NEMOK_SENSOR_HOSTNAME` FIXME: hostname
    * `NEMOK_WIFI_SSID`
    * `NEMOK_WIFI_PASS`
 * Optional parameters:
@@ -194,9 +194,9 @@ Here are two examples of gauges known to work:
    * `NEMOK_SENSOR_HOSTNAME`
    * `NEMOK_WIFI_SSID`
    * `NEMOK_WIFI_PASS`
-   * `NEMOK_SENSOR_KEY` - SignalK data key for sensor reading (e.g. `tanks.freshWater.currentLevel`)
-   * `NEMOK_SENSOR_ADC_TANKLEVEL_0` - Resistance in ohms when the tank is empty (0%), see calibration
-   * `NEMOK_SENSOR_ADC_TANKLEVEL_100` - Resistance in ohms when the tank is full (100%), see calibration
+   * `NEMOK_SENSOR_KEY` - SignalK data key for sensor reading (e.g. `tanks.freshWater.currentLevel`) FIXME: key
+   * `NEMOK_SENSOR_ADC_TANKLEVEL_0` - Resistance in ohms when the tank is empty (0%), see calibration FIXME: adctank0
+   * `NEMOK_SENSOR_ADC_TANKLEVEL_100` - Resistance in ohms when the tank is full (100%), see calibration FIXME: adctank1
 * Optional parameters:
    * `NEMOK_SIGNALK_SERVER_HOST`
    * `NEMOK_SIGNALK_SERVER_PORT`

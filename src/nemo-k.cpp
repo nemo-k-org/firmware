@@ -7,11 +7,24 @@ WiFiClient wiFiClient;
 #include <ESP8266HTTPClient.h>
 
 // ESP01S blue led is connected to GPIO 1 (pin 2)
-#define LED_BUILTIN 1
+#ifdef NEED_LED
+#define LED_BUILTIN 2
+#endif
+
+#include <Preferences.h>
+Preferences prefs;
+String preferencesSsid;
+String preferencesPass;
+String preferencesHostname;
+String preferencesSrvhost;
+uint16_t preferencesSrvport;
+String preferencesSrvtoken;
+String preferencesKey;
+int preferencesDelay;
 
 #ifdef NEED_LIB_ESPSIGK
 #include <EspSigK.h>
-EspSigK sigK(NEMOK_SENSOR_HOSTNAME, NEMOK_WIFI_SSID, NEMOK_WIFI_PASS, &wiFiClient);
+EspSigK sigK;
 #endif
 
 #define BLINK_LENGTH_SHORT 100
@@ -19,18 +32,55 @@ EspSigK sigK(NEMOK_SENSOR_HOSTNAME, NEMOK_WIFI_SSID, NEMOK_WIFI_PASS, &wiFiClien
 
 void blink_led(int length, int times) {
     for (int n=0; n < times; n++) {
+#ifdef NEED_LED
         digitalWrite(LED_BUILTIN, HIGH);
+#endif
         yield();
         delay(length);
+#ifdef NEED_LED
         digitalWrite(LED_BUILTIN, LOW);
+#endif
         yield();
         delay(length);
     }
 }
 
+void nemokPrint(const char * message) {
+#ifdef NEED_SERIAL
+    Serial.println(message);
+#endif
+}
+
+void nemokPrint(String message) {
+#ifdef NEED_SERIAL
+    Serial.println(message);
+#endif
+}
+
+void nemokPrint(int message) {
+#ifdef NEED_SERIAL
+    Serial.println(message);
+#endif
+}
+
+void nemokPrint(double message) {
+#ifdef NEED_SERIAL
+    Serial.println(message);
+#endif
+}
+
+void nemokPrint(const IPAddress& ip) {
+#ifdef NEED_SERIAL
+    char text[16];
+    snprintf(text, sizeof(text), "%u.%u.%u.%u",
+             ip[0], ip[1], ip[2], ip[3]);
+    Serial.println(text);
+#endif
+}
+
 void send_error_message(int error) {
-    Serial.print("Error: ");
-    Serial.println(error);
+    nemokPrint("Error: ");
+    nemokPrint(error);
 
     int led_short = BLINK_LENGTH_SHORT;
     int led_long = BLINK_LENGTH_SHORT * 3;
@@ -45,25 +95,25 @@ void send_error_message(int error) {
 }
 
 bool wifi_initialise() {
-    Serial.print("Connecting to WiFi...");
-    Serial.print(NEMOK_WIFI_SSID);
+    nemokPrint("Connecting to WiFi...");
+    nemokPrint(preferencesSsid);
 
     unsigned int WAITING_TIME_MS = 60000;
     unsigned int wifi_timeout = millis() + WAITING_TIME_MS;
 
     WiFi.mode(WIFI_STA);
-    WiFi.begin(NEMOK_WIFI_SSID, NEMOK_WIFI_PASS);
+    WiFi.begin(preferencesSsid, preferencesPass);
 
     while (WiFi.status() != WL_CONNECTED) {
         blink_led(BLINK_LENGTH_SHORT, 1);
-        Serial.print(".");
+        nemokPrint(".");
         if (wifi_timeout < millis()) {
-            Serial.println("Timeout");
+            nemokPrint("Timeout");
             return false;
         }
     }
 
-    Serial.println(WiFi.localIP());
+    nemokPrint(WiFi.localIP());
 
     return true;
 }
@@ -82,21 +132,54 @@ bool wifi_initialise() {
 #include "../lib/sensor_adc_tanklevel.cpp"
 #endif
 
+void nemokDelay(unsigned long delayMs) {
+#ifdef NEED_LIB_ESPSIGK
+    sigK.safeDelay(delayMs);
+#else
+    delay(delayMs);
+#endif
+}
+
 void setup () {
-    //Serial.begin(115200);
-    //pinMode(LED_BUILTIN, OUTPUT);
+#ifdef NEED_SERIAL
+    Serial.begin(115200);
+#endif
+#ifdef NEED_LED
+    pinMode(LED_BUILTIN, OUTPUT);
+#endif
+
+    prefs.begin("nemok");
+
+    preferencesSsid = prefs.getString("ssid", "nemok");
+    preferencesPass = prefs.getString("pass", "nemok");
+    preferencesHostname = prefs.getString("hostname", "sensor");
+    preferencesSrvhost = prefs.getString("srvhost", "nemok.org");
+    int32_t preferencesSrvportLong = prefs.getInt("srvport", 3000);
+    preferencesSrvport = static_cast<uint16_t>(preferencesSrvportLong);
+    Serial.println(preferencesSrvportLong);
+    Serial.println(preferencesSrvport);
+    preferencesSrvtoken = prefs.getString("srvtoken");
+    preferencesKey = prefs.getString("key", "undefined");
+    preferencesDelay = prefs.getInt("delay", 1000);
 
     #ifdef NEED_LIB_ESPSIGK
-    if (strcmp(NEMOK_SIGNALK_SERVER_HOST, "") != 0) {
-        sigK.setServerHost(NEMOK_SIGNALK_SERVER_HOST);
+    sigK.configure(preferencesHostname, preferencesSsid, preferencesPass, &wiFiClient);
+    sigK.setPrintDebugSerial(true);
+
+    if (preferencesSrvhost.length() > 0) {
+        sigK.setServerHost(preferencesSrvhost);
+        nemokPrint("Setting server host to:");
+        nemokPrint(preferencesSrvhost);
     }
 
-    #if NEMOK_SIGNALK_SERVER_PORT > 0
-    sigK.setServerPort(NEMOK_SIGNALK_SERVER_PORT);
-    #endif
+    if (preferencesSrvport > 0) {
+        sigK.setServerPort(preferencesSrvport);
+        nemokPrint("Setting server port to:");
+        nemokPrint(preferencesSrvport);
+    }
 
-    if (strcmp(NEMOK_SIGNALK_SERVER_TOKEN, "") != 0) {
-        sigK.setServerToken(NEMOK_SIGNALK_SERVER_TOKEN);
+    if (preferencesSrvtoken.length() > 0) {
+        sigK.setServerToken(preferencesSrvtoken);
     }
 
     sigK.begin();
@@ -104,26 +187,37 @@ void setup () {
     blink_led(BLINK_LENGTH_SHORT, 3);
     #endif
 
+    nemokPrint("Starting sensor setup");
     sensorSetup();
+    nemokPrint("Sensor setup finished");
 }
 
 void loop () {
+    nemokPrint("Starting sensor loop");
     sensorLoop();
+    nemokPrint("Sensor loop finished");
 
+    #ifdef NEED_LED
     digitalWrite(LED_BUILTIN, HIGH);
-    #if NEMOK_SENSOR_DELAY > 0
-    sigK.safeDelay(NEMOK_SENSOR_DELAY / 2);
-    delay(BLINK_LENGTH_SHORT);
     #endif
 
+    if (preferencesDelay > 0) {
+        nemokDelay(preferencesDelay / 2);
+        delay(BLINK_LENGTH_SHORT);
+    }
+
+    #ifdef NEED_LED
     digitalWrite(LED_BUILTIN, LOW);
-    #if NEMOK_SENSOR_DELAY > 0
-    sigK.safeDelay(NEMOK_SENSOR_DELAY / 2);
-    #else
-    delay(BLINK_LENGTH_SHORT);
     #endif
+
+    if (preferencesDelay > 0) {
+        nemokDelay(preferencesDelay / 2);
+        delay(BLINK_LENGTH_SHORT);
+    }
 
     #ifdef NEED_LIB_ESPSIGK
     sigK.handle();
     #endif
+
+    nemokPrint("Loop finished");
 }
