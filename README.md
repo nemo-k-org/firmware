@@ -242,3 +242,12 @@ terminal.
    should stay between 0.00 - 1.00. The real measured resistance can be read from a debug key
    (in this example `tanks.freshWater.currentLevel.debug.resistance`). You can use this
    value to set `NEMOK_SENSOR_ADC_TANKLEVEL_0` and `NEMOK_SENSOR_ADC_TANKLEVEL_100`.
+
+## Building
+
+To build all firmwares locally:
+* PlatformIO installed: `make all`
+* Docker: ``docker run -v `pwd`:/opt/build --name pio-build infinitecoding/platformio-for-ci:latest /opt/build/ci-make-all.sh``
+
+To build all firmwares on GitHub:
+* Run workflow [build.yaml](https://github.com/nemo-k-org/firmware/actions/workflows/build.yaml) manually
