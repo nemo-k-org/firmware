@@ -8,21 +8,42 @@ This repository contains the Nemo-K firmware. Its basic charastertics are:
  * [PlatformIO](https://platformio.org/) build framework
  * ESP-01S with at least 1 Mb RAM (ESP8266) microcontroller (MCU)
  * [EspSigK](https://github.com/mplattu/EspSigK) SignalK client library
- * The firmware flavour and parameters are set in compile time and hard-coded into firmware
+ * The firmware flavour and parameters are written to a LittleFS partition which is read by [vshymanskyy/Preferences](https://github.com/vshymanskyy/Preferences) library
 
 ## Inputs and outputs
 
-### Common environment variables
+NemoK firmware uses
+* build-time symbols to select the sensor type to build
+* configuration variables to store settings of an invidivual sensor
 
-* `NEMOK_SENSOR_HOSTNAME` - sensor hostname
-* `NEMOK_SENSOR_DELAY` - delay between sending sensor reading to server (milliseconds)
-* `NEMOK_SENSOR_KEY` - SignalK data key for sensor reading (e.g. `environment.outside.temperature`)
-* `NEMOK_WIFI_SSID` - the WiFi SSID of your yacht
-* `NEMOK_WIFI_PASS` - the passkey to aforementioned WiFi
-* `NEMOK_SIGNALK_SERVER_HOST` - IP or DNS address to your SignalK server
-* `NEMOK_SIGNALK_SERVER_PORT` - port number of your SignalK server
-* `NEMOK_SIGNALK_SERVER_TOKEN` - SignalK server token
-* One (and only one) of the `NEMOK_SENSOR_*` variables (see below)
+The build-time symbols have common prefix `NEMOK_SENSOR_`. These symbols are
+listed below by each sensor.
+
+The configuration variable names refer to Preferences variables. Each variable
+is stored to LittleFS in a separate file. The filesystem is created in the
+web frontend but the values can be later manipulated by the sensor firmware.
+This approach allows one to update the firmware only.
+
+The sensor firmware/Preferences library stores these settings using following
+path scheme: `/nvs/nemok/[variable name]`. In other words the variable `hostname`
+is stored at `/nvs/nemok/hostname`. The EspSigK library utilises Preferences
+as well and it uses path `/nvs/EspSigK/`.
+
+The maximum length of Preferences variable name is 8, which explains the
+brevity of the names.
+
+### Common configration variables
+
+Following configuration variables are used in almost all sensors:
+
+* `hostname` - sensor hostname
+* `delay` - delay between sending sensor reading to server (milliseconds)
+* `key` - SignalK data key for sensor reading (e.g. `environment.outside.temperature`)
+* `ssid` - the WiFi SSID of your yacht
+* `pass` - the passkey to aforementioned WiFi
+* `srvhost` - IP or DNS address to your SignalK server
+* `srvport` - port number of your SignalK server
+* `srvtoken` - SignalK server token
 
 ### Status codes
 
@@ -59,9 +80,9 @@ Test progress:
     you should get status code 1. If no internet connection is not
     available, both codes 1 and 2 are acceptable results.
 
-* Required parameters:
-   * `NEMOK_WIFI_SSID` FIXME: ssid
-   * `NEMOK_WIFI_PASS` FIXME: pass
+* Required configuration variables:
+   * `ssid`
+   * `pass`
 
 #### Temperature sensor DS18B20: `NEMOK_SENSOR_TEMP_DS18B20`
 
@@ -70,15 +91,15 @@ OneWire protocol. The sensor measures -55°C - +125°C and the
 accuracy is ±0,5°C from -10°C - +85°C. The measuring range is suitable
 for example to engine, engine room or salon temperatures.
 
-* Required parameters:
-   * `NEMOK_SENSOR_HOSTNAME` FIXME: hostname
-   * `NEMOK_WIFI_SSID`
-   * `NEMOK_WIFI_PASS`
-* Optional parameters:
-   * `NEMOK_SIGNALK_SERVER_HOST`
-   * `NEMOK_SIGNALK_SERVER_PORT`
-   * `NEMOK_SIGNALK_SERVER_TOKEN`
-   * `NEMOK_SENSOR_DELAY`
+* Configuration variables:
+   * `hostname`
+   * `ssid`
+   * `pass`
+   * `srvhost`
+   * `srvport`
+   * `srvtoken`
+   * `key`
+   * `delay`
 
 #### Temperature sensor MAX6675: `NEMOK_SENSOR_TEMP_MAX6675`
 
@@ -86,39 +107,39 @@ This sensor uses MAX6675 chip and type-K thermocouple to measure
 temperatures. MAX6675 has 12-bit 0,25°C resolution 0 - 1024°C. The
 measuring range suits e.g. for exhaust pipes.
 
-* Required parameters:
-   * `NEMOK_SENSOR_HOSTNAME`
-   * `NEMOK_WIFI_SSID`
-   * `NEMOK_WIFI_PASS`
-* Optional parameters:
-   * `NEMOK_SIGNALK_SERVER_HOST`
-   * `NEMOK_SIGNALK_SERVER_PORT`
-   * `NEMOK_SIGNALK_SERVER_TOKEN`
-   * `NEMOK_SENSOR_DELAY`
+* Configuration variables:
+   * `hostname`
+   * `ssid`
+   * `pass`
+   * `srvhost`
+   * `srvport`
+   * `srvtoken`
+   * `key`
+   * `delay`
 
 #### Location/GNSS sensor NEO 6M v2: `NEMOK_SENSOR_GNSS_NEO6MV2`
 
 This sensor uses NEO 6M v2 breakout board to get geolocation
 from GNSS systems supported by the chip.
 
-* Required parameters:
-   * `NEMOK_SENSOR_HOSTNAME`
-   * `NEMOK_WIFI_SSID`
-   * `NEMOK_WIFI_PASS`
-* Optional parameters:
-   * `NEMOK_SIGNALK_SERVER_HOST`
-   * `NEMOK_SIGNALK_SERVER_PORT`
-   * `NEMOK_SIGNALK_SERVER_TOKEN`
-   * `NEMOK_SENSOR_DELAY`
+* Configuration variables:
+   * `hostname`
+   * `ssid`
+   * `pass`
+   * `srvhost`
+   * `srvport`
+   * `srvtoken`
+   * `key`
+   * `delay`
 
-If `NEMOK_SENSOR_KEY` is set, the sensor will update keys for selected
-vessel. For example `NEMOK_SENSOR_KEY=flybridge` results e.g. following
+If configuration variable `key` is set, the sensor will update keys for selected
+vessel. For example configuration `key=flybridge` results e.g. following
 keys sent to the server:
    * `vessels.flybridge.navigation.gnss.satellites`
    * `vessels.flybridge.navigation.gnss.antennaAltitude`
    * ...
 
-If `NEMOK_SENSOR_KEY` is not set, following keys are updated:
+If `key` is not set, following keys are updated:
    * `navigation.gnss.satellites`
    * `navigation.gnss.antennaAltitude`
    * `navigation.gnss.differentialAge`
@@ -146,7 +167,7 @@ data from UDP port:
    * ID: e.g. `NEO6` (this string will used as a data source, see e.g. Data Browser view)
    * NMEA 0183 Source: `UDP`
    * Port: e.g. `4123` (this should be an unused port in the server and the value should
-     equal with `NEMOK_SIGNALK_SERVER_PORT` parameter)
+     equal with the value of sensor variable `srvport`)
    * Validate checksum: `Yes`
    * Append checksum: `No`
    * Remove NULL characters: `No`
@@ -164,7 +185,7 @@ process NMEA-0183 over UDP. Here is an example configuration for OpenCPN:
    * Data protocol: `NMEA 0183`
    * Address: `0.0.0.0`
    * DataPort: e.g. `4123` (this should be an unused port in the workstation and the value should
-     equal with `NEMOK_SIGNALK_SERVER_PORT` parameter)
+     equal with the value of sensor variable `srvport`)
    * Description: e.g. `NEO6` (this is just to describe what this connection is for)
    * Receive Input on this Port: `checked`
    * Output on this port: `unchecked`
@@ -173,12 +194,12 @@ process NMEA-0183 over UDP. Here is an example configuration for OpenCPN:
 In the setup above no SignalK server is required as the GPS sensor sends NMEA-0183 stream directly
 to OpenCPN.
 
-* Required parameters:
-   * `NEMOK_SENSOR_HOSTNAME`
-   * `NEMOK_WIFI_SSID`
-   * `NEMOK_WIFI_PASS`
-   * `NEMOK_SIGNALK_SERVER_HOST` (Destination of the UDP data, not necessary a SignalK server)
-   * `NEMOK_SIGNALK_SERVER_PORT` (Destination of the UDP data, not necessary a SignalK server)
+* Configuration variables:
+   * `hostname`
+   * `ssid`
+   * `pass`
+   * `srvhost` (Destination of the UDP data, not necessary a SignalK server)
+   * `srvport` (Destination of the UDP data, not necessary a SignalK server)
 
 #### Tank Level Sensor Using ADS1115 AD Converter `NEMOK_SENSOR_ADC_TANKLEVEL`
 
@@ -190,18 +211,19 @@ Here are two examples of gauges known to work:
 * Wema black water gauge signal is 240-30 ohm (0-100%, US standard)
 * Wema water/fuel gauge signal is 0-180 ohm (0-100%, European standard)
 
-* Required parameters:
-   * `NEMOK_SENSOR_HOSTNAME`
-   * `NEMOK_WIFI_SSID`
-   * `NEMOK_WIFI_PASS`
-   * `NEMOK_SENSOR_KEY` - SignalK data key for sensor reading (e.g. `tanks.freshWater.currentLevel`) FIXME: key
-   * `NEMOK_SENSOR_ADC_TANKLEVEL_0` - Resistance in ohms when the tank is empty (0%), see calibration FIXME: adctank0
-   * `NEMOK_SENSOR_ADC_TANKLEVEL_100` - Resistance in ohms when the tank is full (100%), see calibration FIXME: adctank1
-* Optional parameters:
-   * `NEMOK_SIGNALK_SERVER_HOST`
-   * `NEMOK_SIGNALK_SERVER_PORT`
-   * `NEMOK_SIGNALK_SERVER_TOKEN`
-   * `NEMOK_SENSOR_DELAY`
+* Configuration variables:
+   * `hostname`
+   * `ssid`
+   * `pass`
+   * `srvhost`
+   * `srvport`
+   * `srvtoken`
+   * `key` - SignalK data key for sensor reading (e.g. `tanks.freshWater.currentLevel`)
+   * `delay`
+   * `adctank0` - Resistance in ohms when the tank is empty (0%), see calibration
+      instructions below
+   * `adctank1` - Resistance in ohms when the tank is full (100%), see calibration
+      instructions below
 
 **Important! Read this before connecting the gauge to the sensor!** In case your gauge is
 connected to the electrical ground (e.g. your tank is made of conductive material) identify
@@ -234,14 +256,14 @@ terminal.
 1. For best possible results take the gauge out from the tank so you can adjust the float
    manually.
 1. Start by using resistance values given by the gauge manufacturer. If your gauge should give
-   240 ohms with level 0% and 30 ohms with level 100%, set `NEMOK_SENSOR_ADC_TANKLEVEL_0` to 240
-   and `NEMOK_SENSOR_ADC_TANKLEVEL_100` to 30.
+   240 ohms with level 0% and 30 ohms with level 100%, set `adctank0` to 240
+   and `adctank1` to 30.
 1. After measuring the sensor (see above) connect the gauge to the NemoK level sensor.
 1. Power up the NemoK sensor and observe in the SignalK server Data Browser view the values
-   the sensor sends. The path specified by `NEMOK_SENSOR_KEY` (e.g. `tanks.freshWater.currentLevel`)
+   the sensor sends. The path specified by `key` (e.g. `tanks.freshWater.currentLevel`)
    should stay between 0.00 - 1.00. The real measured resistance can be read from a debug key
    (in this example `tanks.freshWater.currentLevel.debug.resistance`). You can use this
-   value to set `NEMOK_SENSOR_ADC_TANKLEVEL_0` and `NEMOK_SENSOR_ADC_TANKLEVEL_100`.
+   value to set `adctank0` and `adctank1`.
 
 ## Building
 
