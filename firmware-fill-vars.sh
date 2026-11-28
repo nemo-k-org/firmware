@@ -1,39 +1,41 @@
-if [ -z $NEMOK_SENSOR_TEST_HTTP ]; then
+#!/bin/bash
+
+if [ -z "$NEMOK_SENSOR_TEST_HTTP" ]; then
     export NEMOK_SENSOR_TEST_HTTP=0
 fi
 
-if [ -z $NEMOK_SENSOR_TEMP_DS18B20 ]; then
+if [ -z "$NEMOK_SENSOR_TEMP_DS18B20" ]; then
     export NEMOK_SENSOR_TEMP_DS18B20=0
 fi
 
-if [ -z $NEMOK_SENSOR_TEMP_MAX6675 ]; then
+if [ -z "$NEMOK_SENSOR_TEMP_MAX6675" ]; then
     export NEMOK_SENSOR_TEMP_MAX6675=0
 fi
 
-if [ -z $NEMOK_SENSOR_GNSS_NEO6MV2 ]; then
+if [ -z "$NEMOK_SENSOR_GNSS_NEO6MV2" ]; then
     export NEMOK_SENSOR_GNSS_NEO6MV2=0
 fi
 
-if [ -z $NEMOK_SENSOR_GNSS_NEO6MV2_UDP ]; then
+if [ -z "$NEMOK_SENSOR_GNSS_NEO6MV2_UDP" ]; then
     export NEMOK_SENSOR_GNSS_NEO6MV2_UDP=0
 fi
 
-if [ -z $NEMOK_SENSOR_ADC_TANKLEVEL ]; then
+if [ -z "$NEMOK_SENSOR_ADC_TANKLEVEL" ]; then
     export NEMOK_SENSOR_ADC_TANKLEVEL=0
 fi
 
-if [ -z $NEMOK_SIGNALK_SERVER_PORT ]; then
+if [ -z "$NEMOK_SIGNALK_SERVER_PORT" ]; then
     export NEMOK_SIGNALK_SERVER_PORT=0
 fi
 
-if [ -z $NEMOK_SENSOR_DELAY ]; then
+if [ -z "$NEMOK_SENSOR_DELAY" ]; then
     export NEMOK_SENSOR_DELAY=0
 fi
 
 selected_count=0
 for required in $NEMOK_SENSOR_TEST_HTTP $NEMOK_SENSOR_TEMP_DS18B20 $NEMOK_SENSOR_TEMP_MAX6675 $NEMOK_SENSOR_GNSS_NEO6MV2 $NEMOK_SENSOR_GNSS_NEO6MV2_UDP $NEMOK_SENSOR_ADC_TANKLEVEL; do
-    if [ $required -eq 1 ]; then
-        selected_count=`expr $selected_count + 1`
+    if [ "$required" -eq 1 ]; then
+        selected_count=$((selected_count + 1))
     fi
 done
 
