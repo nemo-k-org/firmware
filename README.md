@@ -32,15 +32,17 @@ as well and it uses path `/nvs/EspSigK/`.
 The maximum length of Preferences variable name is 8, which explains the
 brevity of the names.
 
-### Common configration variables
+### Common configuration variables
 
 Following configuration variables are used in almost all sensors:
 
 * `hostname` - sensor hostname
+* `admpass` - password for accessing sensor configuration web server (leave empty for
+   no authentication)
 * `delay` - delay between sending sensor reading to server (milliseconds)
 * `key` - SignalK data key for sensor reading (e.g. `environment.outside.temperature`)
 * `ssid` - the WiFi SSID of your yacht
-* `pass` - the passkey to aforementioned WiFi
+* `ssidpass` - the passkey to aforementioned WiFi
 * `srvhost` - IP or DNS address to your SignalK server
 * `srvport` - port number of your SignalK server
 * `srvtoken` - SignalK server token
@@ -54,6 +56,20 @@ the status code (number of short 100 ms blinks).
 Status codes are following:
  1. HTTP test passed
  2. HTTP test failed (HTTP status code is reported in serial output)
+
+### Sensor configuration web server
+
+Each sensor has a configuration web server, which can be accessed with URL
+`http://[hostname].local`. So if the value of configuration variable `hostname`
+is `enginetemp`, you can access the configuration web server with url
+`http://enginetemp.local` while being in the same wireless network as the
+sensor.
+
+If the variable `admpass` is set, the password to access the server is that value.
+The username is always `admin`.
+
+If the variable `admpass` is an empty string, no username or password is required
+to access the configuration web server.
 
 ## Sensor types
 
@@ -82,7 +98,7 @@ Test progress:
 
 * Required configuration variables:
    * `ssid`
-   * `pass`
+   * `ssidpass`
 
 #### Temperature sensor DS18B20: `NEMOK_SENSOR_TEMP_DS18B20`
 
@@ -93,8 +109,9 @@ for example to engine, engine room or salon temperatures.
 
 * Configuration variables:
    * `hostname`
+   * `admpass`
    * `ssid`
-   * `pass`
+   * `ssidpass`
    * `srvhost`
    * `srvport`
    * `srvtoken`
@@ -109,8 +126,9 @@ measuring range suits e.g. for exhaust pipes.
 
 * Configuration variables:
    * `hostname`
+   * `admpass`
    * `ssid`
-   * `pass`
+   * `ssidpass`
    * `srvhost`
    * `srvport`
    * `srvtoken`
@@ -124,8 +142,9 @@ from GNSS systems supported by the chip.
 
 * Configuration variables:
    * `hostname`
+   * `admpass`
    * `ssid`
-   * `pass`
+   * `ssidpass`
    * `srvhost`
    * `srvport`
    * `srvtoken`
@@ -196,10 +215,11 @@ to OpenCPN.
 
 * Configuration variables:
    * `hostname`
+   * `admpass`
    * `ssid`
-   * `pass`
-   * `srvhost` (Destination of the UDP data, not necessary a SignalK server)
-   * `srvport` (Destination of the UDP data, not necessary a SignalK server)
+   * `ssidpass`
+   * `srvhost` (Destination of the UDP data, not necessarily a SignalK server)
+   * `srvport` (Destination of the UDP data, not necessarily a SignalK server)
 
 #### Tank Level Sensor Using ADS1115 AD Converter `NEMOK_SENSOR_ADC_TANKLEVEL`
 
@@ -213,8 +233,9 @@ Here are two examples of gauges known to work:
 
 * Configuration variables:
    * `hostname`
+   * `admpass`
    * `ssid`
-   * `pass`
+   * `ssidpass`
    * `srvhost`
    * `srvport`
    * `srvtoken`

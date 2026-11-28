@@ -14,8 +14,9 @@ WiFiClient wiFiClient;
 #include <Preferences.h>
 Preferences prefs;
 String preferencesSsid;
-String preferencesPass;
+String preferencesSsidPass;
 String preferencesHostname;
+String preferencesAdminPass;
 String preferencesSrvhost;
 uint16_t preferencesSrvport;
 String preferencesSrvtoken;
@@ -102,7 +103,7 @@ bool wifi_initialise() {
     unsigned int wifi_timeout = millis() + WAITING_TIME_MS;
 
     WiFi.mode(WIFI_STA);
-    WiFi.begin(preferencesSsid, preferencesPass);
+    WiFi.begin(preferencesSsid, preferencesSsidPass);
 
     while (WiFi.status() != WL_CONNECTED) {
         blink_led(BLINK_LENGTH_SHORT, 1);
@@ -157,8 +158,9 @@ void setup () {
     prefs.begin("nemok");
 
     preferencesSsid = prefs.getString("ssid", "nemok");
-    preferencesPass = prefs.getString("pass", "nemok");
+    preferencesSsidPass = prefs.getString("ssidpass", "nemok");
     preferencesHostname = prefs.getString("hostname", "sensor");
+    preferencesAdminPass = prefs.getString("admpass", "");
     preferencesSrvhost = prefs.getString("srvhost", "nemok.org");
     int32_t preferencesSrvportLong = prefs.getInt("srvport", 3000);
     preferencesSrvport = static_cast<uint16_t>(preferencesSrvportLong);
@@ -169,7 +171,7 @@ void setup () {
     preferencesDelay = prefs.getInt("delay", 1000);
 
     #ifdef NEED_LIB_ESPSIGK
-    sigK.configure(preferencesHostname, preferencesSsid, preferencesPass, &wiFiClient);
+    sigK.configure(preferencesHostname, preferencesSsid, preferencesSsidPass, &wiFiClient);
     sigK.setPrintDebugSerial(true);
 
     if (preferencesSrvhost.length() > 0) {
