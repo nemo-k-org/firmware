@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
-. ./firmware-fill-vars.sh
+# shellcheck source=firmware-fill-vars.sh
+. "$(dirname "$0")/firmware-fill-vars.sh"
 
 pio run --environment esp01
 exit $?
