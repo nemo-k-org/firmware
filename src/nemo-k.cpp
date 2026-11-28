@@ -118,6 +118,8 @@ bool wifi_initialise() {
     return true;
 }
 
+#include "../lib/web_server.cpp"
+
 #if NEMOK_SENSOR_TEST_HTTP > 0
 #include "../lib/sensor_test_http.cpp"
 #elif NEMOK_SENSOR_TEMP_DS18B20 > 0
@@ -134,9 +136,13 @@ bool wifi_initialise() {
 
 void nemokDelay(unsigned long delayMs) {
 #ifdef NEED_LIB_ESPSIGK
-    sigK.safeDelay(delayMs);
+    sigK.safeDelay(delayMs, webServerHandle);
 #else
-    delay(delayMs);
+    unsigned long start = millis();
+    while (millis() - start < delayMs) {
+        webServerHandle();
+        yield();
+    }
 #endif
 }
 
@@ -190,6 +196,8 @@ void setup () {
     nemokPrint("Starting sensor setup");
     sensorSetup();
     nemokPrint("Sensor setup finished");
+
+    webServerSetup();
 }
 
 void loop () {
@@ -218,6 +226,8 @@ void loop () {
     #ifdef NEED_LIB_ESPSIGK
     sigK.handle();
     #endif
+
+    webServerHandle();
 
     nemokPrint("Loop finished");
 }
