@@ -29,10 +29,10 @@ void sensorSetup()
     adc.setCompareChannels(ADS1115_COMP_1_GND);
     adc.setMeasureMode(ADS1115_CONTINUOUS);
 
-    nemoKSensorKeyDebugResistance = preferencesKey + ".debug.resistance";
+    nemoKSensorKeyDebugResistance = nemokPrefs.get(NemokPreferences::KEY) + ".debug.resistance";
 
-    nemoKADCTanklevel0 = prefs.getInt("adctank0");
-    nemoKADCTanklevel100 = prefs.getInt("adctank1");
+    nemoKADCTanklevel0 = nemokPrefs.get(NemokPreferences::ADCTANK0);
+    nemoKADCTanklevel100 = nemokPrefs.get(NemokPreferences::ADCTANK1);
 }
 
 float readChannel(ADS1115_MUX channel)
@@ -69,7 +69,7 @@ void sensorLoop()
     nemokPrint("percentage:");
     nemokPrint(percentage);
 
-    if (preferencesKey.length() > 0)
-        sigK.sendDelta(preferencesKey, percentage);
+    if (nemokPrefs.get(NemokPreferences::KEY).length() > 0)
+        sigK.sendDelta(nemokPrefs.get(NemokPreferences::KEY), percentage);
     sigK.sendDelta(nemoKSensorKeyDebugResistance, resistance);
 }

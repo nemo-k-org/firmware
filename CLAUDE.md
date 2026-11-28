@@ -35,6 +35,8 @@ Local per-device upload scripts named `upload_sensor_*` are gitignored (they hol
 
 **Runtime configuration lives in LittleFS, not in the firmware.** Settings are read with the `vshymanskyy/Preferences` library under namespace `nemok` (stored as `/nvs/nemok/<name>`; EspSigK uses `/nvs/EspSigK/`). The filesystem is created by a separate web frontend, so firmware can be updated without losing settings. Preference names are limited to 8 characters. Common names: `hostname`, `ssid`, `pass`, `srvhost`, `srvport`, `srvtoken`, `key`, `delay`; sensors may read their own (e.g. `adctank0`/`adctank1`). Older code used build-time `NEMOK_*` symbols for these values — those are obsolete.
 
+All access goes through the global `nemokPrefs` object ([lib/nemok_preferences.cpp](lib/nemok_preferences.cpp)); never call the Preferences library directly. Variables are declared once in the `NEMOK_PREFERENCES_STRINGS` / `NEMOK_PREFERENCES_INTS` X-macro lists (enum name, key, default), which generate separate `StringKey`/`IntKey` enums, so wrong names or types fail to compile: `nemokPrefs.get(NemokPreferences::HOSTNAME)`, `nemokPrefs.set(NemokPreferences::DELAY, 5000)`. Values are cached in RAM by `begin()`; `set()` writes through to LittleFS. Key names must stay in sync with the web frontend's parameter list.
+
 SignalK values are sent in SI units (e.g. temperatures in Kelvin, tank levels as 0–1 ratios).
 
 ## Adding a sensor type

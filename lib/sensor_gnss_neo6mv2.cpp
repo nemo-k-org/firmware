@@ -18,8 +18,8 @@ void sensorSetup()
     Serial.begin(9600);
 
     String vesselPrefix = "";
-    if (preferencesKey.length() > 0) {
-        vesselPrefix = "vessels." + preferencesKey + ".";
+    if (nemokPrefs.get(NemokPreferences::KEY).length() > 0) {
+        vesselPrefix = "vessels." + nemokPrefs.get(NemokPreferences::KEY) + ".";
     }
 
     _neo6mv2_satellites = vesselPrefix + "navigation.gnss.satellites";

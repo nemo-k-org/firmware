@@ -21,15 +21,15 @@
 
 ESP8266WebServer nemokWebServer(NEMOK_WEB_SERVER_PORT);
 
-// HTTP basic authentication: user "admin", password from preferencesAdminPass.
+// HTTP basic authentication: user "admin", password from the `admpass` preference.
 // An empty password disables authentication. Call at the start of every handler;
 // if it returns false, the 401 response has already been sent.
 bool webServerAuthenticate() {
-    if (preferencesAdminPass.length() == 0) {
+    if (nemokPrefs.get(NemokPreferences::ADMPASS).length() == 0) {
         return true;
     }
 
-    if (nemokWebServer.authenticate(NEMOK_WEB_SERVER_ADMIN_USER, preferencesAdminPass.c_str())) {
+    if (nemokWebServer.authenticate(NEMOK_WEB_SERVER_ADMIN_USER, nemokPrefs.get(NemokPreferences::ADMPASS).c_str())) {
         return true;
     }
 
@@ -53,15 +53,15 @@ void webServerHandleNotFound() {
 
 void webServerSetupMdns() {
     if (!MDNS.isRunning()) {
-        if (!MDNS.begin(preferencesHostname.c_str())) {
+        if (!MDNS.begin(nemokPrefs.get(NemokPreferences::HOSTNAME).c_str())) {
             nemokPrint("Error starting mDNS responder");
             return;
         }
     }
 
-    String instanceName = preferencesHostname + "-config";
+    String instanceName = nemokPrefs.get(NemokPreferences::HOSTNAME) + "-config";
     if (MDNS.addService(instanceName.c_str(), "http", "tcp", NEMOK_WEB_SERVER_PORT)) {
-        nemokPrint("mDNS: web server advertised as http://" + preferencesHostname + ".local/");
+        nemokPrint("mDNS: web server advertised as http://" + nemokPrefs.get(NemokPreferences::HOSTNAME) + ".local/");
     }
     else {
         nemokPrint("Error adding mDNS service for the web server");

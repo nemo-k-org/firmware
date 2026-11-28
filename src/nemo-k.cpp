@@ -11,17 +11,7 @@ WiFiClient wiFiClient;
 #define LED_BUILTIN 2
 #endif
 
-#include <Preferences.h>
-Preferences prefs;
-String preferencesSsid;
-String preferencesSsidPass;
-String preferencesHostname;
-String preferencesAdminPass;
-String preferencesSrvhost;
-uint16_t preferencesSrvport;
-String preferencesSrvtoken;
-String preferencesKey;
-int preferencesDelay;
+#include "../lib/nemok_preferences.cpp"
 
 #ifdef NEED_LIB_ESPSIGK
 #include <EspSigK.h>
@@ -97,13 +87,13 @@ void send_error_message(int error) {
 
 bool wifi_initialise() {
     nemokPrint("Connecting to WiFi...");
-    nemokPrint(preferencesSsid);
+    nemokPrint(nemokPrefs.get(NemokPreferences::SSID));
 
     unsigned int WAITING_TIME_MS = 60000;
     unsigned int wifi_timeout = millis() + WAITING_TIME_MS;
 
     WiFi.mode(WIFI_STA);
-    WiFi.begin(preferencesSsid, preferencesSsidPass);
+    WiFi.begin(nemokPrefs.get(NemokPreferences::SSID), nemokPrefs.get(NemokPreferences::SSIDPASS));
 
     while (WiFi.status() != WL_CONNECTED) {
         blink_led(BLINK_LENGTH_SHORT, 1);
@@ -155,39 +145,34 @@ void setup () {
     pinMode(LED_BUILTIN, OUTPUT);
 #endif
 
-    prefs.begin("nemok");
-
-    preferencesSsid = prefs.getString("ssid", "nemok");
-    preferencesSsidPass = prefs.getString("ssidpass", "nemok");
-    preferencesHostname = prefs.getString("hostname", "sensor");
-    preferencesAdminPass = prefs.getString("admpass", "");
-    preferencesSrvhost = prefs.getString("srvhost", "nemok.org");
-    int32_t preferencesSrvportLong = prefs.getInt("srvport", 3000);
-    preferencesSrvport = static_cast<uint16_t>(preferencesSrvportLong);
-    Serial.println(preferencesSrvportLong);
-    Serial.println(preferencesSrvport);
-    preferencesSrvtoken = prefs.getString("srvtoken");
-    preferencesKey = prefs.getString("key", "undefined");
-    preferencesDelay = prefs.getInt("delay", 1000);
+    nemokPrefs.begin();
 
     #ifdef NEED_LIB_ESPSIGK
-    sigK.configure(preferencesHostname, preferencesSsid, preferencesSsidPass, &wiFiClient);
+    sigK.configure(
+        nemokPrefs.get(NemokPreferences::HOSTNAME),
+        nemokPrefs.get(NemokPreferences::SSID),
+        nemokPrefs.get(NemokPreferences::SSIDPASS),
+        &wiFiClient
+    );
     sigK.setPrintDebugSerial(true);
 
-    if (preferencesSrvhost.length() > 0) {
-        sigK.setServerHost(preferencesSrvhost);
+    const String& srvhost = nemokPrefs.get(NemokPreferences::SRVHOST);
+    if (srvhost.length() > 0) {
+        sigK.setServerHost(srvhost);
         nemokPrint("Setting server host to:");
-        nemokPrint(preferencesSrvhost);
+        nemokPrint(srvhost);
     }
 
-    if (preferencesSrvport > 0) {
-        sigK.setServerPort(preferencesSrvport);
+    int32_t srvport = nemokPrefs.get(NemokPreferences::SRVPORT);
+    if (srvport > 0) {
+        sigK.setServerPort(static_cast<uint16_t>(srvport));
         nemokPrint("Setting server port to:");
-        nemokPrint(preferencesSrvport);
+        nemokPrint(srvport);
     }
 
-    if (preferencesSrvtoken.length() > 0) {
-        sigK.setServerToken(preferencesSrvtoken);
+    const String& srvtoken = nemokPrefs.get(NemokPreferences::SRVTOKEN);
+    if (srvtoken.length() > 0) {
+        sigK.setServerToken(srvtoken);
     }
 
     sigK.begin();
@@ -207,12 +192,14 @@ void loop () {
     sensorLoop();
     nemokPrint("Sensor loop finished");
 
+    int32_t loopDelay = nemokPrefs.get(NemokPreferences::DELAY);
+
     #ifdef NEED_LED
     digitalWrite(LED_BUILTIN, HIGH);
     #endif
 
-    if (preferencesDelay > 0) {
-        nemokDelay(preferencesDelay / 2);
+    if (loopDelay > 0) {
+        nemokDelay(loopDelay / 2);
         delay(BLINK_LENGTH_SHORT);
     }
 
@@ -220,8 +207,8 @@ void loop () {
     digitalWrite(LED_BUILTIN, LOW);
     #endif
 
-    if (preferencesDelay > 0) {
-        nemokDelay(preferencesDelay / 2);
+    if (loopDelay > 0) {
+        nemokDelay(loopDelay / 2);
         delay(BLINK_LENGTH_SHORT);
     }
 
