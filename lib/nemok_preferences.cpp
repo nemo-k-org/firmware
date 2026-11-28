@@ -58,13 +58,27 @@ public:
 
         for (int n = 0; n < STRING_KEY_COUNT; n++)
         {
+            stringDefined[n] = prefs.isKey(stringKeyNames[n]);
             stringValues[n] = prefs.getString(stringKeyNames[n], stringDefaults[n]);
         }
 
         for (int n = 0; n < INT_KEY_COUNT; n++)
         {
+            intDefined[n] = prefs.isKey(intKeyNames[n]);
             intValues[n] = prefs.getInt(intKeyNames[n], intDefaults[n]);
         }
+    }
+
+    // True if the variable exists in LittleFS (i.e. it was created for this
+    // sensor or has been set since). Undefined variables return their default.
+    bool isDefined(StringKey key) const
+    {
+        return stringDefined[key];
+    }
+
+    bool isDefined(IntKey key) const
+    {
+        return intDefined[key];
     }
 
     const String &get(StringKey key) const
@@ -81,12 +95,14 @@ public:
     bool set(StringKey key, const String &value)
     {
         stringValues[key] = value;
+        stringDefined[key] = true;
         return prefs.putString(stringKeyNames[key], value) == value.length();
     }
 
     bool set(IntKey key, int32_t value)
     {
         intValues[key] = value;
+        intDefined[key] = true;
         return prefs.putInt(intKeyNames[key], value) == sizeof(int32_t);
     }
 
@@ -105,6 +121,8 @@ private:
     Preferences prefs;
     String stringValues[STRING_KEY_COUNT];
     int32_t intValues[INT_KEY_COUNT];
+    bool stringDefined[STRING_KEY_COUNT];
+    bool intDefined[INT_KEY_COUNT];
 
 #define NEMOK_PREFERENCES_KEY_NAME(name, key, defaultValue) key,
 #define NEMOK_PREFERENCES_DEFAULT(name, key, defaultValue) defaultValue,
